@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - without_nft_v1.0.1
-    
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest
