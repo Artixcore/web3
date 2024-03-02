@@ -21,10 +21,11 @@ jobs:
     - name: Install AWS CLI
       run: |
         sudo apt-get install -y awscli
+        aws --version  # Check the installed AWS CLI version
+        aws --update   # Update the AWS CLI installation
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws configure set region ${{ secrets.AWS_REGION }}
-
 
     - name: Install dependencies
       run: npm install
