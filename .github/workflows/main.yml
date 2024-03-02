@@ -10,35 +10,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20' 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20' 
 
-    - name: Install AWS CLI
-      run: |
-        sudo apt-get install -y awscli
-        aws --version  # Check the installed AWS CLI version
-        aws --update   # Update the AWS CLI installation
-        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws configure set region ${{ secrets.AWS_REGION }}
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get install -y awscli
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region ${{ secrets.AWS_REGION }}
 
-    - name: Install dependencies
-      run: npm install
+      - name: Clear previous data in S3 bucket
+        run: |
+          aws s3 rm s3://${{ secrets.AWS_S3_BUCKET }} --recursive
 
-    - name: Build
-      run: npm run build
+      - name: Install dependencies
+        run: npm install
 
-    - name: Deploy to AWS S3
-      uses: jakejarvis/s3-sync-action@master
-      with:
-        args: --follow-symlinks --delete
-      env:
-        AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-        AWS_REGION: ${{ secrets.AWS_REGION }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to AWS S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --follow-symlinks
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
