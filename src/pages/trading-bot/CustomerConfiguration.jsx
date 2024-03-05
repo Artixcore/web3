@@ -24,9 +24,9 @@ const CustomerConfiguration = () => {
     try {
       let symbol;
 
-      if (data?.product_id === "BTC-USD" || "BTC-EUR") {
+      if (data?.product_id === "BTC-USD" || "BTC-EUR" || "BTC-USDC") {
         symbol = "BTC";
-      } else if (data?.product_id === "ETH-USD" || "ETH-EUR") {
+      } else if (data?.product_id === "ETH-USD" || "ETH-EUR" || "ETH-USDC") {
         symbol = "ETH";
       }
 
@@ -94,8 +94,10 @@ const CustomerConfiguration = () => {
             >
               <option></option>
               <option value="BTC-USD">BTC-USD</option>
-              <option value="ETH-USD">ETH-USD</option>
+              <option value="BTC-USDC">BTC-USDC</option>
               <option value="BTC-EUR">BTC-EUR</option>
+              <option value="ETH-USD">ETH-USD</option>
+              <option value="ETH-USDC">ETH-USDC</option>
               <option value="ETH-EUR">ETH-EUR</option>
             </select>
             {errors.product_id && (
