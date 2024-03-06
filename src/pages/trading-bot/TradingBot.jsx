@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -135,6 +135,15 @@ const TradingBot = () => {
 
   return (
     <main className="section-wrapper">
+      <div className="my-5 lg:my-10 text-center space-y-2">
+        <h3>Bot Running Status</h3>
+
+        <p>
+          This section displays the current status of the bot. <br />
+          Check here for updates on its activity and performance.
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-5">
         {tradingDataLoading || loading ? (
           Array.from({ length: 6 }).map((_, index) => (
@@ -218,12 +227,16 @@ const TradingBot = () => {
       </div>
 
       <div className="mt-5">
-        {botCounterLoading || loading ? (
+        {botCounterLoading || tradingDataLoading || loading ? (
           <div className="shadow-md rounded-md border p-5">
-            <Skeleton count={3} />
+            <Skeleton count={4} />
           </div>
         ) : (
           <div className="p-5 rounded-md shadow-md border w-fit">
+            <p>
+              <span className="font-semibold">Symbol:</span>{" "}
+              {tradingData?.symbol}
+            </p>
             <p>
               <span className="font-semibold">Total Buy:</span>{" "}
               {botCounterData?.total_buy}
