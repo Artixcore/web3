@@ -50,7 +50,7 @@ const CustomerConfiguration = () => {
       );
 
       const updateRes = await axios.patch(
-        "https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/customer",
+        `https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/validCustomer?customerId=${user?.uid}`,
         updateData
       );
 

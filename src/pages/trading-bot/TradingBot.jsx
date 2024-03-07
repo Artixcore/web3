@@ -1,6 +1,6 @@
+import useFetchData from "@/hooks/useFetchData";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
-import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import DisplayTradingData from "@/components/DisplayTradingData";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -10,54 +10,87 @@ import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import useToast from "@/hooks/useToast";
 import notificationSound from "../../assets/audio/notification.mp3";
-import "react-loading-skeleton/dist/skeleton.css";
 
 const TradingBot = () => {
-  const [loading, setLoading] = useState(false);
   const { user } = useContext(AuthContext);
+  const [isLoading, setLoading] = useState(false);
   const { showToast } = useToast();
 
+  // get request for bot running status
   const {
-    data: runningStatusData,
-    error: runningStatusError,
-    isLoading: runningStatusLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ["runningStatus"],
-    queryFn: async () =>
-      await axios
-        .get(
-          `https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/customer/customerItem?customerId=${user?.uid}&attributeToSearch=running_status`
-        )
-        .then((res) => res.data),
+    isLoading: botRunningStatusLoading,
+    data: botRunningStatus,
+    error: botRunningStatusError,
+  } = useFetchData({
+    queryKey: "runningStatus",
+    url: `https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/validCustomer/validCustomerItem?customerId=${user?.uid}&attributeToSearch=running_status`,
   });
 
+  // get request for bot output
   const {
-    isLoading: tradingDataLoading,
-    error: tradingDataError,
-    data: tradingData,
-  } = useQuery({
-    queryKey: ["tradingData"],
-    queryFn: async () =>
-      await axios
-        .get(
-          `https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/botOutput?display_id=${user?.uid}`
-        )
-        .then((res) => res.data),
-
-    refetchInterval: runningStatusData === "ON" ? 1000 : false,
+    isLoading: botOutputLoading,
+    error: botOutputError,
+    data: botOutputData,
+  } = useFetchData({
+    queryKey: "botOutput",
+    url: `https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/botOutput?display_id=${user?.uid}`,
+    refetchInterval: botRunningStatus === "ON" ? 1000 : false,
   });
 
-  const { data: botCounterData, isLoading: botCounterLoading } = useQuery({
-    queryKey: ["botCounter"],
-    queryFn: async () =>
-      await axios
-        .get(
-          `https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/botCounter?counter_id=${user?.uid}`
-        )
-        .then((res) => res.data),
-    refetchInterval: runningStatusData === "ON" ? 1000 : false,
+  // get request for bot counter
+  const {
+    data: botCounterData,
+    isLoading: botCounterLoading,
+    error: botCounterError,
+  } = useFetchData({
+    queryKey: "botCounter",
+    url: `https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/botCounter?counter_id=${user?.uid}`,
+    refetchInterval: botRunningStatus === "ON" ? 1000 : false,
   });
+
+  const hanldeStartBot = async () => {
+    setLoading(true);
+    try {
+      const data = {
+        customerId: user?.uid,
+        updateKey: "running_status",
+        updateValue: "ON",
+      };
+
+      const res = await axios.patch(
+        `https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/validCustomer?customerId=${user?.uid}`,
+        data
+      );
+      if (res?.data?.Message === "SUCCESS") {
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
+
+  const handleStopBot = async () => {
+    setLoading(true);
+    try {
+      const data = {
+        customerId: user?.uid,
+        updateKey: "running_status",
+        updateValue: "OFF",
+      };
+
+      const res = await axios.patch(
+        `https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/validCustomer?customerId=${user?.uid}`,
+        data
+      );
+      if (res?.data?.Message === "SUCCESS") {
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
 
   // Function to handle showing the popup message and playing the sound
   const handleBuyStatus = () => {
@@ -76,58 +109,15 @@ const TradingBot = () => {
     handleBuyStatus();
   }, [botCounterData]);
 
-  const startBot = async () => {
-    setLoading(true);
-    try {
-      const data = {
-        customerId: user?.uid,
-        updateKey: "running_status",
-        updateValue: "ON",
-      };
-
-      const res = await axios.patch(
-        "https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/customer",
-        data
-      );
-      if (res?.data?.Message === "SUCCESS") {
-        refetch();
-        setLoading(false);
-      }
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
-    }
-  };
-
-  const stopBot = async () => {
-    setLoading(true);
-    try {
-      const data = {
-        customerId: user?.uid,
-        updateKey: "running_status",
-        updateValue: "OFF",
-      };
-
-      const res = await axios.patch(
-        "https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/customer",
-        data
-      );
-      if (res?.data?.Message === "SUCCESS") {
-        refetch();
-        setLoading(false);
-      }
-    } catch (error) {
-      setLoading(false);
-      console.log(error);
-    }
-  };
-
-  if (runningStatusError || tradingDataError) {
+  // for showing error whenever api request got failed
+  if (botRunningStatusError || botOutputError || botCounterError) {
     return (
       <div className="min-h-[calc(100dvh-64px)] flex items-center justify-center">
         <p>
           An error has occurred:{" "}
-          {runningStatusError?.message || tradingDataError?.message}
+          {botRunningStatusError?.message ||
+            botOutputError?.message ||
+            botCounterError?.message}
         </p>
       </div>
     );
@@ -145,7 +135,7 @@ const TradingBot = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-5">
-        {tradingDataLoading || loading ? (
+        {botOutputLoading || isLoading ? (
           Array.from({ length: 6 }).map((_, index) => (
             <div key={index} className="shadow-md rounded-md border p-5">
               <Skeleton />
@@ -156,65 +146,65 @@ const TradingBot = () => {
           <>
             <DisplayTradingData
               title="Closing Price"
-              value={tradingData?.closing_price_result}
+              value={botOutputData?.closing_price_result}
             />
 
             <DisplayTradingData
               title="Update Price"
-              value={tradingData?.update_price_result}
+              value={botOutputData?.update_price_result}
             />
 
             <DisplayTradingData
               title="Average Price"
-              value={tradingData?.moving_average_price}
+              value={botOutputData?.moving_average_price}
             />
 
             <DisplayTradingData
               title="Trade Sell Amount"
-              value={tradingData?.trade_sell_amount}
+              value={botOutputData?.trade_sell_amount}
             />
 
             <DisplayTradingData
               title="Trade Buy Amount"
-              value={tradingData?.trade_buy_amount}
+              value={botOutputData?.trade_buy_amount}
             />
 
             <DisplayTradingData
               title="RSI Value"
-              value={tradingData?.rsi_value}
+              value={botOutputData?.rsi_value}
             />
           </>
         )}
       </div>
 
       <div className="mt-5">
-        {runningStatusLoading || loading ? (
+        {botRunningStatusLoading || isLoading ? (
           <div className="shadow-md rounded-md border p-5">
             <Skeleton />
           </div>
         ) : (
           <div className="flex items-center gap-5">
-            {runningStatusData === "ON" ? (
+            {botRunningStatus === "ON" ? (
               <Button
-                onClick={stopBot}
+                onClick={handleStopBot}
                 className={cn(
-                  loading && buttonVariants({ variant: "loading" })
+                  isLoading && buttonVariants({ variant: "loading" })
                 )}
               >
-                {loading ? <LoadingSpinner /> : "Stop Bot"}
+                {isLoading ? <LoadingSpinner /> : "Stop Bot"}
               </Button>
             ) : (
               <Button
-                onClick={startBot}
+                onClick={hanldeStartBot}
                 className={cn(
-                  loading && buttonVariants({ variant: "loading" })
+                  isLoading && buttonVariants({ variant: "loading" })
                 )}
               >
-                {loading ? <LoadingSpinner /> : "Start Bot"}
+                {isLoading ? <LoadingSpinner /> : "Start Bot"}
               </Button>
             )}
 
-            {runningStatusData !== "ON" && (
+            {botRunningStatus !== "ON" && (
               <Link
                 to="/trading-bot/customer-configuration"
                 className={buttonVariants()}
@@ -227,7 +217,7 @@ const TradingBot = () => {
       </div>
 
       <div className="mt-5">
-        {botCounterLoading || tradingDataLoading || loading ? (
+        {botCounterLoading || botOutputLoading || isLoading ? (
           <div className="shadow-md rounded-md border p-5">
             <Skeleton count={4} />
           </div>
@@ -235,7 +225,7 @@ const TradingBot = () => {
           <div className="p-5 rounded-md shadow-md border w-fit">
             <p>
               <span className="font-semibold">Symbol:</span>{" "}
-              {tradingData?.symbol}
+              {botOutputData?.symbol}
             </p>
             <p>
               <span className="font-semibold">Total Buy:</span>{" "}
