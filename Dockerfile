@@ -1,26 +1,38 @@
-# Use an official Node.js runtime as a parent image
-FROM node:14
+# Use Node.js as the base image
+FROM node:alpine3.18
 
-# Set the working directory to /app
+# Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
-
-# Install app dependencies
+# Copy package.json and install dependencies
+COPY package.json .
 RUN npm install
 
-# Copy the current directory contents into the container at /app
+# Copy the rest of the application files
 COPY . .
 
-# Expose the port that Vite is using
-EXPOSE 3000
 
-# Define environment variable
-ENV NODE_ENV=production
+# Debugging step
+RUN ls -la /app/build
 
-# Build the Vite project
+
+# Build the React app
 RUN npm run build
 
-# Run the production server when the container launches
-CMD ["npm", "start"]
+# Use Nginx as the final image
+FROM nginx:1.23-alpine
+
+# Set the working directory in the final image
+WORKDIR /usr/share/nginx/html
+
+# Remove default Nginx content
+RUN rm -rf *
+
+# Copy the built React app from the previous stage
+COPY --from=0 /app/build .
+
+# Expose port 80
+EXPOSE 80
+
+# Corrected ENTRYPOINT syntax
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
