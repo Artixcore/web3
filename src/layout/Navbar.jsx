@@ -1,3 +1,4 @@
+import useFetchData from "@/hooks/useFetchData";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/providers/AuthProvider";
 import useToast from "@/hooks/useToast";
@@ -5,8 +6,6 @@ import { IoMenu, IoClose } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import axios from "axios";
-import { useQuery } from "@tanstack/react-query";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
@@ -28,33 +27,27 @@ const Navbar = () => {
       });
   };
 
-  const { data: customerInputData, isLoading: customerInputLoading } = useQuery(
-    {
-      queryKey: ["inputSubmittedValue"],
-      queryFn: () =>
-        axios
-          .get(
-            `https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/customer/customerItem?customerId=${userId}&attributeToSearch=isSubmitted`
-          )
-          .then((res) => res.data),
+  const {
+    isLoading: customerInputLoading,
+    data: customerInput,
+    error: customerInputError,
+  } = useFetchData({
+    queryKey: "inputSubmitted",
+    url: `https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/customer/customerItem?customerId=${userId}&attributeToSearch=isSubmitted`,
+    refetchInterval: user ? 1000 : false,
+  });
 
-      refetchInterval: user ? 1000 : false,
-    }
-  );
+  const {
+    isLoading: customerConfigLoading,
+    data: customerConfig,
+    error: customerConfigError,
+  } = useFetchData({
+    queryKey: "configSubmitted",
+    url: `https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/orderConfiguration?customerId=${userId}&attributeToSearch=isSubmitted`,
+    refetchInterval: user && customerInput ? 1000 : false,
+  });
 
-  const { data: customerConfigData, isLoading: customerConfigLoading } =
-    useQuery({
-      queryKey: ["configSubmittedValue"],
-      queryFn: () =>
-        axios
-          .get(
-            `https://zyv0q9hl1g.execute-api.us-east-2.amazonaws.com/config-stage/orderConfiguration?customerId=${userId}&attributeToSearch=isSubmitted`
-          )
-          .then((res) => res.data),
-
-      refetchInterval: user && customerInputData ? 1000 : false,
-    });
-
+  // navigation items for navbar
   const navItems = (
     <>
       {user && customerInputLoading && customerConfigLoading ? (
@@ -70,10 +63,10 @@ const Navbar = () => {
         <>
           <Link to="/">Home</Link>
 
-          {user && customerInputData && customerConfigData ? (
+          {user && customerInput && customerConfig ? (
             <Link to="/trading-bot">Trading Bot</Link>
-          ) : user && customerInputData ? (
-            <Link to="/trading-bot/customer-input">Trading Bot</Link>
+          ) : user && customerInput ? (
+            <Link to="/trading-bot/customer-configuration">Trading Bot</Link>
           ) : user ? (
             <Link to="/trading-bot/customer-input">Trading Bot</Link>
           ) : (
@@ -96,12 +89,20 @@ const Navbar = () => {
 
   // stop scrolling when nav is open on small devices
   useEffect(() => {
-    if (isMenuOpen) {
-      document.body.classList.add("no-scroll");
-    } else {
-      document.body.classList.remove("no-scroll");
-    }
+    document.body.style.overflow = isMenuOpen ? "hidden" : "auto";
   }, [isMenuOpen]);
+
+  // for showing error whenever api request got failed
+  if (customerInputError || customerConfigError) {
+    return (
+      <div className="shadow-md py-3 flex items-center justify-center">
+        <p>
+          An error has occurred:{" "}
+          {customerInputError?.message || customerConfigError?.message}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <nav className="shadow-md sticky top-0 z-10 bg-white">
