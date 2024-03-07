@@ -17,16 +17,21 @@ jobs:
         run: docker build -t rokondoc/wealth-free-doc .
       - name: Publish image to docker hub
         run: docker push rokondoc/wealth-free-doc:latest
- 
+
   deploy:
     needs: build
     runs-on: self-hosted
+    services:
+      docker:
+        image: docker:latest
+        ports:
+          - 2375:2375
     steps:
       - name: Check Docker Info
-        run: docker info
+        run: docker -H tcp://localhost:2375 info
       - name: Pull image from docker hub
-        run: docker pull rokondoc/wealth-free-doc:latest
+        run: docker -H tcp://localhost:2375 pull rokondoc/wealth-free-doc:latest
       - name: Delete Old Container
-        run: docker rm -f reactContainer || true 
+        run: docker -H tcp://localhost:2375 rm -f reactContainer || true
       - name: Run docker container
-        run: docker run -d -p 3000:80 --name reactContainer rokondoc/wealth-free-doc
+        run: docker -H tcp://localhost:2375 run -d -p 3000:80 --name reactContainer rokondoc/wealth-free-doc
