@@ -30,8 +30,8 @@ jobs:
       - name: Check Docker Info
         run: docker info
       - name: Pull image from docker hub
-        run: docker -H tcp://localhost:2375 pull rokondoc/wealth-free-doc:latest
+        run: docker pull rokondoc/wealth-free-doc:latest
       - name: Delete Old Container
-        run: docker -H tcp://localhost:2375 rm -f reactContainer || true
+        run: docker rm -f reactContainer || true 
       - name: Run docker container
-        run: docker -H tcp://localhost:2375 run -d -p 3000:80 --name reactContainer rokondoc/wealth-free-doc
+        run: docker run -d -p 3000:80 --name reactContainer rokondoc/wealth-free-doc
