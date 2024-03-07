@@ -28,7 +28,7 @@ jobs:
           - 2375:2375
     steps:
       - name: Check Docker Info
-        run: docker -H tcp://localhost:2375 info
+        run: docker info
       - name: Pull image from docker hub
         run: docker -H tcp://localhost:2375 pull rokondoc/wealth-free-doc:latest
       - name: Delete Old Container
