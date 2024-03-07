@@ -9,6 +9,9 @@ WORKDIR /app
 COPY package.json .
 RUN npm install
 COPY . .
+
+# Debugging step
+RUN ls -la /app/build
 RUN npm run build
 
 # Step 2: Use Nginx as the final image
