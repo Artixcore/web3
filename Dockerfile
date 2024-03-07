@@ -1,5 +1,5 @@
 # Use Node.js as the base image
-FROM node:alpine3.18
+FROM node:alpine3.18 as build
 
 # Set the working directory
 WORKDIR /app
@@ -28,8 +28,8 @@ WORKDIR /usr/share/nginx/html
 # Remove default Nginx content
 RUN rm -rf *
 
-# Copy the built React app from the previous stage
-COPY --from=0 /app/build .
+# Change the path to the correct build output directory
+COPY --from=build /app/dist /usr/share/nginx/html
 
 # Expose port 80
 EXPOSE 80
