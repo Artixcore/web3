@@ -11,8 +11,10 @@ import Signin from "@/pages/auth/Signin";
 import Signup from "@/pages/auth/Signup";
 import Market from "@/pages/Market";
 import PrivateRoute from "./PrivateRoute";
-import ProtectedRoute from "./ProtectedRoute";
 import NFTs from "@/pages/NFTs";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import ManagePackages from "@/pages/ManagePackages";
+import AddPackage from "@/pages/AddPackage";
 
 const router = createBrowserRouter([
   {
@@ -80,6 +82,25 @@ const router = createBrowserRouter([
             <CustomerConfiguration />
           </PrivateRoute>
         ),
+      },
+    ],
+  },
+  {
+    path: "/dashboard",
+    element: (
+      <PrivateRoute>
+        <DashboardLayout />
+      </PrivateRoute>
+    ),
+
+    children: [
+      {
+        index: true,
+        element: <ManagePackages />,
+      },
+      {
+        path: "add-package",
+        element: <AddPackage />,
       },
     ],
   },
