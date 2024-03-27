@@ -29,13 +29,13 @@ const ManagePackages = () => {
       {isPending ? (
         Array.from({ length: 3 }).map((_, index) => (
           <div key={index}>
-            <Skeleton height={100} className="rounded-md mb-1" />
+            <Skeleton height={100} className="rounded-md" />
           </div>
         ))
       ) : (
         <>
           <div className="flex justify-end">
-            <Link to="/add-package">
+            <Link to="/dashboard/add-package">
               <Button size="sm">Add Package</Button>
             </Link>
           </div>
