@@ -28,8 +28,8 @@ instance.interceptors.response.use(
   },
   function (err) {
     const responseObject = {
-      statusCode: err?.response?.data?.statusCode || 404,
-      message: err?.response?.data?.message,
+      statusCode: err?.response?.status || 500,
+      message: err?.response?.data?.message || "Something went wrong",
     };
     return Promise.reject(responseObject);
   }

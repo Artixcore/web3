@@ -1,5 +1,5 @@
-import axiosBaseQuery from "@/helpers/axios/axiosBaseQuery";
 import { createApi } from "@reduxjs/toolkit/query/react";
+import axiosBaseQuery from "@/helpers/axios/axiosBaseQuery";
 
 // Define a service using a base URL and expected endpoints
 export const baseApi = createApi({
@@ -12,4 +12,4 @@ export const baseApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetPokemonByNameQuery } = baseApi;
+export default baseApi;

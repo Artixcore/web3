@@ -60,12 +60,10 @@ const ManagePackages = () => {
     console.log(data);
   };
 
-  console.log("error", error);
-
   if (error)
     return (
       <div className="flex items-center justify-center min-h-[calc(100dvh-52px)]">
-        An error occurred: {error.message}
+        An error occurred: {error?.message}
       </div>
     );
 

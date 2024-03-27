@@ -1,4 +1,4 @@
-import { baseApi } from "./baseApi";
+import baseApi from "./baseApi";
 
 const PACKAGE_URL = "/packages";
 
@@ -15,7 +15,7 @@ const packageApi = baseApi.injectEndpoints({
       query: (data) => ({
         url: `${PACKAGE_URL}/create`,
         method: "POST",
-        body: data,
+        data,
       }),
     }),
 

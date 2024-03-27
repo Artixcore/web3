@@ -2,12 +2,14 @@ import FormSubmit from "@/components/forms/FormSubmit";
 import FormWrapper from "@/components/forms/FormWrapper";
 import PackageForm from "@/components/forms/PackageForm";
 import pruneEmpty from "@/helpers/pruneEmpty";
-import axios from "axios";
+import { useAddPackageMutation } from "@/redux/services/packageApi";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+import Swal from "sweetalert2";
 
 const AddPackage = () => {
   const [loading, setIsLoading] = useState(false);
+  const [addPackage, { isError, isSuccess, data }] = useAddPackageMutation();
 
   const {
     register,
@@ -29,27 +31,62 @@ const AddPackage = () => {
   });
 
   const onSubmit = async (data) => {
-    // Use the pruneEmpty function to remove empty properties
-    const prunedObject = pruneEmpty(data);
+    try {
+      // Use the pruneEmpty function to remove empty properties
+      const prunedObject = pruneEmpty(data);
 
-    const detailValues = prunedObject?.package?.map(
-      (item) => item.packageDetails
-    );
+      const detailValues = prunedObject?.package?.map(
+        (item) => item?.packageDetails
+      );
 
-    const { packageName, price, discount } = prunedObject;
+      const { packageName, price, discount } = prunedObject;
 
-    const postData = {
-      packageName,
-      packageDetails: detailValues,
-      price: parseFloat(price),
-    };
+      const postData = {
+        packageName,
+        packageDetails: detailValues,
+        price: parseFloat(price),
+      };
 
-    // Add discount to postData if it is available
-    if (discount !== undefined && discount !== "") {
-      postData.discount = parseFloat(discount);
+      // Add discount to postData if it is available
+      if (discount !== undefined && discount !== "") {
+        postData.discount = parseFloat(discount);
+      }
+
+      const response = await addPackage(postData); // Attempt to add the data
+
+      // Now, you must check if the response includes the 'data' property
+      if ("data" in response && response?.data) {
+        // Since we've confirmed 'data' exists, we can use it safely here
+        reset();
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: response.data?.message,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      } else if ("error" in response) {
+        // Handle error case
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Submission Error",
+          text: response?.error?.message,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+    } catch (error) {
+      // Additional error handling, perhaps more specific than above
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "An unexpected error occurred",
+        text: "Please try again later.",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     }
-
-    axios.post("http://localhost:5000/api/v1/packages/create", postData);
   };
 
   return (
