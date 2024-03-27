@@ -16,23 +16,14 @@ import { useFieldArray, useForm } from "react-hook-form";
 import FormWrapper from "@/components/forms/FormWrapper";
 import PackageForm from "@/components/forms/PackageForm";
 import FormSubmit from "@/components/forms/FormSubmit";
+import { useGetAllPackagesQuery } from "@/redux/services/packageApi";
 
 const ManagePackages = () => {
   const [modalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setIsLoading] = useState(false);
 
-  const { isPending, error, data } = useFetchData({
-    queryKey: "packages",
-    url: "https://organic-life-server.vercel.app/api/v1/packages",
-  });
-
-  if (error)
-    return (
-      <div className="flex items-center justify-center min-h-[calc(100dvh-52px)]">
-        An error occurred: {error.message}
-      </div>
-    );
+  const { isLoading, error, data } = useGetAllPackagesQuery();
 
   const {
     handleSubmit,
@@ -69,9 +60,16 @@ const ManagePackages = () => {
     console.log(data);
   };
 
+  if (error)
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100dvh-52px)]">
+        An error occurred: {error.message}
+      </div>
+    );
+
   return (
     <main className="p-5 lg:p-10 space-y-5">
-      {isPending ? (
+      {isLoading ? (
         Array.from({ length: 3 }).map((_, index) => (
           <div key={index}>
             <Skeleton height={100} className="rounded-md" />
