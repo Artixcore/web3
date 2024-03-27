@@ -60,6 +60,8 @@ const ManagePackages = () => {
     console.log(data);
   };
 
+  console.log("error", error);
+
   if (error)
     return (
       <div className="flex items-center justify-center min-h-[calc(100dvh-52px)]">
@@ -94,7 +96,7 @@ const ManagePackages = () => {
               </TableRow>
             </TableHeader>
 
-            {data?.data?.map((item, index) => (
+            {data?.map((item, index) => (
               <TableBody key={item?._id}>
                 <TableRow>
                   <TableCell className="font-medium">{index + 1}</TableCell>
