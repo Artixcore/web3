@@ -30,7 +30,7 @@ const DashboardLayout = () => {
           />
         </Sider>
 
-        <Layout className="bg-red-500">
+        <Layout>
           {/* content part */}
           <Content>
             <Outlet />

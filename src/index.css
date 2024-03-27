@@ -29,9 +29,6 @@
 .section-wrapper {
   @apply w-[90%] lg:w-[80%] mx-auto;
 }
-.no-scroll {
-  overflow-y: hidden;
-}
 
 .white-glassmorphism {
   background: rgba(255, 255, 255, 0.05);

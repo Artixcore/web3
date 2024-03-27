@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
 import { useAccount, useDisconnect } from "wagmi";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const Navbar = () => {
   const { user, logOut } = useContext(AuthContext);
@@ -69,6 +69,7 @@ const Navbar = () => {
           <Skeleton className="w-[200px] lg:w-[70px]" />
           <Skeleton className="w-[200px] lg:w-[70px]" />
           <Skeleton className="w-[200px] lg:w-[70px]" />
+          <Skeleton className="w-[200px] lg:w-[70px]" />
         </div>
       ) : (
         <>
@@ -83,6 +84,8 @@ const Navbar = () => {
           ) : (
             <></>
           )}
+
+          {user && <Link to="/dashboard">Dashboard</Link>}
 
           {user && address && <Link to="/nfts">NFTs</Link>}
 
@@ -102,15 +105,16 @@ const Navbar = () => {
 
   // stop scrolling when nav is open on small devices
   useEffect(() => {
-    if (isMenuOpen) {
-      document.body.classList.add("no-scroll");
-    } else {
-      document.body.classList.remove("no-scroll");
-    }
+    document.body.style.overflow = isMenuOpen ? "hidden" : "";
   }, [isMenuOpen]);
 
   return (
-    <nav className="section-wrapper py-3 flex items-center justify-between">
+    <nav
+      className={cn(
+        "py-3 flex items-center justify-between",
+        pathname.includes("/dashboard") ? "px-5" : "section-wrapper"
+      )}
+    >
       {/* left side */}
       <div className="flex items-center gap-3">
         {/* opening button */}
