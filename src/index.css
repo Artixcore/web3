@@ -30,6 +30,14 @@
   @apply w-[90%] lg:w-[80%] mx-auto;
 }
 
+.ant-modal-footer {
+  display: none;
+}
+
+.ant-modal-title {
+  @apply text-xl font-bold !important;
+}
+
 .white-glassmorphism {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;

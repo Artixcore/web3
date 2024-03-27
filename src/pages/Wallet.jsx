@@ -4,7 +4,7 @@ import { AiFillPlayCircle } from "react-icons/ai";
 import { SiEthereum } from "react-icons/si";
 import { BsInfoCircle } from "react-icons/bs";
 import { Button } from "@/components/ui/button";
-import { shortenAddress } from "@/utils/shortenAddress";
+import shortenAddress from "@/helpers/shortenAddress";
 import { useForm } from "react-hook-form";
 import { parseEther } from "viem";
 

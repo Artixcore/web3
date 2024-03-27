@@ -69,7 +69,6 @@ const Navbar = () => {
           <Skeleton className="w-[200px] lg:w-[70px]" />
           <Skeleton className="w-[200px] lg:w-[70px]" />
           <Skeleton className="w-[200px] lg:w-[70px]" />
-          <Skeleton className="w-[200px] lg:w-[70px]" />
         </div>
       ) : (
         <>
@@ -90,7 +89,6 @@ const Navbar = () => {
           {user && address && <Link to="/nfts">NFTs</Link>}
 
           <Link to="/market">Market</Link>
-          <Link to="/blogs">Blogs</Link>
           <Link to="/contact-us">Contact Us</Link>
 
           {user && (

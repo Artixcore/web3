@@ -10,8 +10,18 @@ import {
 } from "@/components/ui/table";
 import useFetchData from "@/hooks/useFetchData";
 import Skeleton from "react-loading-skeleton";
+import { Modal } from "antd";
+import { useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import FormWrapper from "@/components/forms/FormWrapper";
+import PackageForm from "@/components/forms/PackageForm";
+import FormSubmit from "@/components/forms/FormSubmit";
 
 const ManagePackages = () => {
+  const [modalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [loading, setIsLoading] = useState(false);
+
   const { isPending, error, data } = useFetchData({
     queryKey: "packages",
     url: "https://organic-life-server.vercel.app/api/v1/packages",
@@ -23,6 +33,41 @@ const ManagePackages = () => {
         An error occurred: {error.message}
       </div>
     );
+
+  const {
+    handleSubmit,
+    register,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      packageName: data?.packageName,
+      package: [{ packageDetails: data?.packageDetails }],
+      price: data?.price,
+      discount: data?.discount,
+    },
+  });
+
+  const { fields, remove, append } = useFieldArray({
+    control,
+    name: "package",
+  });
+
+  const handleUpdate = (data) => {
+    setIsModalOpen(true);
+    setSelectedItem(data);
+  };
+
+  const handleCancel = () => {
+    reset();
+    setIsModalOpen(false);
+    setSelectedItem(null);
+  };
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
 
   return (
     <main className="p-5 lg:p-10 space-y-5">
@@ -61,10 +106,7 @@ const ManagePackages = () => {
                   <TableCell className="font-medium">${item.price}</TableCell>
 
                   <TableCell>
-                    <Button
-                      // onClick={() => handleUpdate(item)}
-                      size="sm"
-                    >
+                    <Button onClick={() => handleUpdate(item)} size="sm">
                       Update
                     </Button>
                   </TableCell>
@@ -84,6 +126,22 @@ const ManagePackages = () => {
           </Table>
         </>
       )}
+
+      <Modal title="Update Package" open={modalOpen} onCancel={handleCancel}>
+        {selectedItem && (
+          <FormWrapper onSubmit={handleSubmit(onSubmit)}>
+            <PackageForm
+              register={register}
+              errors={errors}
+              data={selectedItem}
+              fields={fields}
+              append={append}
+              remove={remove}
+            />
+            <FormSubmit loading={loading} title="Update" />
+          </FormWrapper>
+        )}
+      </Modal>
     </main>
   );
 };

@@ -5,7 +5,6 @@ import Wallet from "@/pages/Wallet";
 import TradingBot from "@/pages/trading-bot/TradingBot";
 import CustomerInput from "@/pages/trading-bot/CustomerInput";
 import CustomerConfiguration from "@/pages/trading-bot/CustomerConfiguration";
-import Blogs from "@/pages/Blogs";
 import Contact from "@/pages/Contact";
 import Signin from "@/pages/auth/Signin";
 import Signup from "@/pages/auth/Signup";
@@ -40,10 +39,6 @@ const router = createBrowserRouter([
             <NFTs />
           </PrivateRoute>
         ),
-      },
-      {
-        path: "/blogs",
-        element: <Blogs />,
       },
       {
         path: "/contact-us",

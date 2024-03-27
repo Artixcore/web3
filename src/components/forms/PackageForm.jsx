@@ -1,4 +1,6 @@
-const PackageForm = ({ register, errors, data }) => {
+import { IoMdAddCircle, IoIosRemoveCircle } from "react-icons/io";
+
+const PackageForm = ({ register, errors, data, fields, append, remove }) => {
   return (
     <div className="space-y-3">
       <div className="space-y-1">
@@ -36,30 +38,26 @@ const PackageForm = ({ register, errors, data }) => {
 
         {fields.map(({ id }, index) => (
           <div key={id} className="space-y-1">
-            <div className="flex items-center justify-center gap-5">
+            <div className="flex items-center justify-between gap-5">
               <input
                 type="text"
                 className="w-full rounded px-3 py-2 focus:outline-none border"
-                defaultValue={data?.packageDetails}
+                // defaultValue={data?.packageDetails[index]}
                 {...register(`package.${index}.packageDetails`, {
                   required: true,
                 })}
               />
 
-              {fields.length > 1 && (
-                <button type="button" onClick={() => remove(index)}>
-                  <IoIosRemoveCircle className="size-4" />
-                </button>
-              )}
+              <button type="button" onClick={() => remove(index)}>
+                <IoIosRemoveCircle className="size-4" />
+              </button>
             </div>
 
-            <div>
-              {errors?.package?.[index]?.packageDetails && (
-                <span className="text-red-500 text-sm">
-                  Package Details is required.
-                </span>
-              )}
-            </div>
+            {errors?.package?.[index]?.packageDetails && (
+              <span className="text-red-500 text-sm">
+                Package Details is required.
+              </span>
+            )}
           </div>
         ))}
       </div>
@@ -87,8 +85,6 @@ const PackageForm = ({ register, errors, data }) => {
           {...register("discount")}
         />
       </div>
-
-      <Button type="submit">Submit</Button>
     </div>
   );
 };
