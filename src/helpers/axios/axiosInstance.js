@@ -24,6 +24,7 @@ instance.interceptors.response.use(
       data: res?.data,
       meta: res?.data?.meta,
     };
+
     return responseObject;
   },
   function (err) {

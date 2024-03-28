@@ -27,6 +27,7 @@ const ManagePackages = () => {
   const [loading, setIsLoading] = useState(false);
 
   const { data, isLoading, error, refetch } = useGetAllPackagesQuery();
+
   const [deletePackage] = useDeletePackageMutation();
 
   const {
@@ -66,6 +67,7 @@ const ManagePackages = () => {
 
   const handleDelete = async (id) => {
     try {
+      // Prompt the user for confirmation before deletion
       const result = await Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -76,21 +78,24 @@ const ManagePackages = () => {
         confirmButtonText: "Yes, delete it!",
       });
 
+      // If the user confirms the deletion
       if (result.isConfirmed) {
+        // Attempt to delete the package with the specified ID
         const res = await deletePackage(id);
 
+        // Check if the deletion was successful
         if (res?.data?.success === true) {
-          // If delete is successful, show success message
+          // If delete is successful, show success message to the user
           await Swal.fire({
             title: "Deleted!",
             text: "Selected item has been deleted.",
             icon: "success",
           });
 
-          // Now refetch data after successful deletion
+          // Now refetch data after successful deletion to update the UI
           refetch();
         } else {
-          // If delete fails or success is not true, show error message
+          // If delete fails or success is not true, show error message to the user
           await Swal.fire({
             title: "Error!",
             text: "Failed to delete item.",
@@ -99,7 +104,7 @@ const ManagePackages = () => {
         }
       }
     } catch (error) {
-      // Catch any errors that occur during the process
+      // Catch any errors that occur during the deletion process and inform the user
       Swal.fire({
         title: "Error!",
         text: "An error occurred while deleting the item.",

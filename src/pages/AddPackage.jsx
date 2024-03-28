@@ -15,6 +15,7 @@ const AddPackage = () => {
     register,
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -35,12 +36,15 @@ const AddPackage = () => {
       // Use the pruneEmpty function to remove empty properties
       const prunedObject = pruneEmpty(data);
 
+      // Extract package details from the pruned object
       const detailValues = prunedObject?.package?.map(
         (item) => item?.packageDetails
       );
 
+      // Destructure relevant properties from the pruned object
       const { packageName, price, discount } = prunedObject;
 
+      // Prepare the data object to be sent to the server
       const postData = {
         packageName,
         packageDetails: detailValues,
@@ -52,32 +56,35 @@ const AddPackage = () => {
         postData.discount = parseFloat(discount);
       }
 
-      const response = await addPackage(postData); // Attempt to add the data
+      // Attempt to add the package data using the addPackage function
+      const res = await addPackage(postData);
 
-      // Now, you must check if the response includes the 'data' property
-      if ("data" in response && response?.data) {
-        // Since we've confirmed 'data' exists, we can use it safely here
-        reset();
+      // Check if the response includes the 'data' property
+      if (res?.data?.success === true) {
+        // If successful, show success message
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: response.data?.message,
+          title: res.data?.message,
           showConfirmButton: false,
           timer: 1500,
         });
-      } else if ("error" in response) {
-        // Handle error case
+
+        // Reset the form after successful submission
+        reset();
+      } else {
+        // If there was an error in the response, handle it
         Swal.fire({
           position: "top-end",
           icon: "error",
           title: "Submission Error",
-          text: response?.error?.message,
+          text: res?.error?.message,
           showConfirmButton: false,
           timer: 1500,
         });
       }
     } catch (error) {
-      // Additional error handling, perhaps more specific than above
+      // If an unexpected error occurs during the process, handle it
       Swal.fire({
         position: "top-end",
         icon: "error",
