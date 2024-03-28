@@ -21,7 +21,7 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
   function (res) {
     const responseObject = {
-      data: res?.data?.data,
+      data: res?.data,
       meta: res?.data?.meta,
     };
     return responseObject;

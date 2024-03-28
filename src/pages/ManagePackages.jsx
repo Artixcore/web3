@@ -8,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import useFetchData from "@/hooks/useFetchData";
 import Skeleton from "react-loading-skeleton";
 import { Modal } from "antd";
 import { useState } from "react";
@@ -16,14 +15,19 @@ import { useFieldArray, useForm } from "react-hook-form";
 import FormWrapper from "@/components/forms/FormWrapper";
 import PackageForm from "@/components/forms/PackageForm";
 import FormSubmit from "@/components/forms/FormSubmit";
-import { useGetAllPackagesQuery } from "@/redux/services/packageApi";
+import {
+  useDeletePackageMutation,
+  useGetAllPackagesQuery,
+} from "@/redux/services/packageApi";
+import Swal from "sweetalert2";
 
 const ManagePackages = () => {
   const [modalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [loading, setIsLoading] = useState(false);
 
-  const { isLoading, error, data } = useGetAllPackagesQuery();
+  const { data, isLoading, error, refetch } = useGetAllPackagesQuery();
+  const [deletePackage] = useDeletePackageMutation();
 
   const {
     handleSubmit,
@@ -60,6 +64,50 @@ const ManagePackages = () => {
     console.log(data);
   };
 
+  const handleDelete = async (id) => {
+    try {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      });
+
+      if (result.isConfirmed) {
+        const res = await deletePackage(id);
+
+        if (res?.data?.success === true) {
+          // If delete is successful, show success message
+          await Swal.fire({
+            title: "Deleted!",
+            text: "Selected item has been deleted.",
+            icon: "success",
+          });
+
+          // Now refetch data after successful deletion
+          refetch();
+        } else {
+          // If delete fails or success is not true, show error message
+          await Swal.fire({
+            title: "Error!",
+            text: "Failed to delete item.",
+            icon: "error",
+          });
+        }
+      }
+    } catch (error) {
+      // Catch any errors that occur during the process
+      Swal.fire({
+        title: "Error!",
+        text: "An error occurred while deleting the item.",
+        icon: "error",
+      });
+    }
+  };
+
   if (error)
     return (
       <div className="flex items-center justify-center min-h-[calc(100dvh-52px)]">
@@ -94,7 +142,7 @@ const ManagePackages = () => {
               </TableRow>
             </TableHeader>
 
-            {data?.map((item, index) => (
+            {data?.data?.map((item, index) => (
               <TableBody key={item?._id}>
                 <TableRow>
                   <TableCell className="font-medium">{index + 1}</TableCell>
@@ -111,7 +159,7 @@ const ManagePackages = () => {
 
                   <TableCell>
                     <Button
-                      // onClick={() => handleDelete(item?._id)}
+                      onClick={() => handleDelete(item?._id)}
                       variant="destructive"
                       size="sm"
                     >
