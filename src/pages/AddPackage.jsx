@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 
 const AddPackage = () => {
   const [loading, setIsLoading] = useState(false);
-  const [addPackage, { isError, isSuccess, data }] = useAddPackageMutation();
+  const [addPackage] = useAddPackageMutation();
 
   const {
     register,
@@ -32,6 +32,9 @@ const AddPackage = () => {
   });
 
   const onSubmit = async (data) => {
+    // Set loading state to true to indicate form submission is in progress
+    setIsLoading(true);
+
     try {
       // Use the pruneEmpty function to remove empty properties
       const prunedObject = pruneEmpty(data);
@@ -61,7 +64,10 @@ const AddPackage = () => {
 
       // Check if the response includes the 'data' property
       if (res?.data?.success === true) {
-        // If successful, show success message
+        // If successful, set loading state to false
+        setIsLoading(false);
+
+        // Show success message to the user
         Swal.fire({
           position: "top-end",
           icon: "success",
@@ -73,7 +79,10 @@ const AddPackage = () => {
         // Reset the form after successful submission
         reset();
       } else {
-        // If there was an error in the response, handle it
+        // If there was an error in the response, set loading state to false
+        setIsLoading(false);
+
+        // Show error message to the user
         Swal.fire({
           position: "top-end",
           icon: "error",
@@ -84,7 +93,10 @@ const AddPackage = () => {
         });
       }
     } catch (error) {
-      // If an unexpected error occurs during the process, handle it
+      // Catch any unexpected errors and set loading state to false
+      setIsLoading(false);
+
+      // Show error message to the user
       Swal.fire({
         position: "top-end",
         icon: "error",

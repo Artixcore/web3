@@ -32,7 +32,7 @@ const Pricings = () => {
                   <Skeleton height={200} className="rounded-md" />
                 </div>
               ))
-            : data?.map((item) => (
+            : data?.data?.map((item) => (
                 <div
                   key={item?._id}
                   className="shadow-md rounded-md border p-5 space-y-5"
